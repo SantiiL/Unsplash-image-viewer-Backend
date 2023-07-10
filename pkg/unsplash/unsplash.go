@@ -12,7 +12,9 @@ import (
 
 const baseURL = "https://api.unsplash.com"
 
-func GetPhotos(page int, perPage int) ([]Photo, error) {
+type Unsplash struct{}
+
+func (u *Unsplash) GetPhotos(page int, perPage int) ([]Photo, error) {
 	url := fmt.Sprintf("%s/photos?page=%s&per_page=%s&client_id=%s", baseURL, strconv.Itoa(page), strconv.Itoa(perPage), os.Getenv("UNSPLASH_ACCESS_KEY"))
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -37,7 +39,7 @@ func GetPhotos(page int, perPage int) ([]Photo, error) {
 	return photos, nil
 }
 
-func SearchPhotos(query string, page int, perPage int) (SearchResponse, error) {
+func (u *Unsplash) SearchPhotos(query string, page int, perPage int) (SearchResponse, error) {
 	url := fmt.Sprintf("%s/search/photos?query=%s&page=%s&per_page=%s&client_id=%s", baseURL, query, strconv.Itoa(page), strconv.Itoa(perPage), os.Getenv("UNSPLASH_ACCESS_KEY"))
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -60,4 +62,8 @@ func SearchPhotos(query string, page int, perPage int) (SearchResponse, error) {
 	}
 
 	return searchResponse, nil
+}
+
+func NewUnsplashService() UnsplashService {
+	return &Unsplash{}
 }
