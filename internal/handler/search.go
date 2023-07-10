@@ -7,7 +7,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SearchPhotos(c *fiber.Ctx) error {
+type SearchHandler struct {
+	service unsplash.UnsplashService
+}
+
+func NewSearchHandler(service unsplash.UnsplashService) *SearchHandler {
+	return &SearchHandler{service: service}
+}
+
+func (h *SearchHandler) SearchPhotos(c *fiber.Ctx) error {
 	query := c.Query("query")
 	if query == "" {
 		return c.Status(400).SendString("Query parameter is required")
@@ -26,9 +34,8 @@ func SearchPhotos(c *fiber.Ctx) error {
 		return c.Status(400).SendString("Per_page parameter is not a valid integer")
 	}
 
-	searchResponse, err := unsplash.SearchPhotos(query, page, perPage)
+	searchResponse, err := h.service.SearchPhotos(query, page, perPage)
 	if err != nil {
-		// Log the error and return a 500 status code with a helpful message
 		return c.Status(500).SendString("Failed to search photos from Unsplash")
 	}
 

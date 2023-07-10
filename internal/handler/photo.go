@@ -7,9 +7,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetPhotos(c *fiber.Ctx) error {
-	pageParam := c.Query("page", "1")         // Default to page 1 if not provided
-	perPageParam := c.Query("per_page", "12") // Default to 10 items per page if not provided
+type PhotoHandler struct {
+	service unsplash.UnsplashService
+}
+
+func NewPhotoHandler(service unsplash.UnsplashService) *PhotoHandler {
+	return &PhotoHandler{service: service}
+}
+
+func (h *PhotoHandler) GetPhotos(c *fiber.Ctx) error {
+	pageParam := c.Query("page", "1")
+	perPageParam := c.Query("per_page", "12")
 
 	page, err := strconv.Atoi(pageParam)
 	if err != nil {
@@ -21,9 +29,8 @@ func GetPhotos(c *fiber.Ctx) error {
 		return c.Status(400).SendString("Per_page parameter is not a valid integer")
 	}
 
-	photos, err := unsplash.GetPhotos(page, perPage)
+	photos, err := h.service.GetPhotos(page, perPage)
 	if err != nil {
-		// Log the error and return a 500 status code with a helpful message
 		return c.Status(500).SendString("Failed to get photos from Unsplash")
 	}
 
